@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanha UGC NET JRF Indian Political Thought Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .option-btn.selected {
+            transform: translateY(-2px);
+        }
+        .option-btn.correct {
+            background-color: #10B981 !important; /* Emerald-500 */
+            color: white !important;
+            border-color: #059669 !important;
+        }
+        .option-btn.incorrect {
+            background-color: #EF4444 !important; /* Red-500 */
+            color: white !important;
+            border-color: #DC2626 !important;
+        }
+        .sidebar {
+            height: calc(100vh - 4rem); /* Full height minus header */
+        }
+         @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column-reverse;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                top: 0;
+            }
+            .quiz-container {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200 p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl text-center w-full max-w-lg">
+            <h1 class="text-3xl md:text-4xl font-bold text-indigo-700 mb-2">Kanha UGC NET JRF</h1>
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-700 mb-6">Indian Political Thought Test</h2>
+            <p class="text-gray-600 mb-8">Enter your name to begin the 1-hour mock test. Good luck!</p>
+            <input type="text" id="student-name-input" placeholder="Enter your name..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition mb-4">
+            <p id="name-error" class="text-red-500 text-sm mt-1 mb-4 hidden">Please enter your name.</p>
+            <button id="start-quiz-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-300">Start Quiz</button>
+        </div>
+    </div>
+
+    <!-- Quiz App -->
+    <div id="quiz-app" class="hidden">
+        <header class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-10">
+            <h1 class="text-xl md:text-2xl font-bold text-indigo-700">Kanha UGC NET JRF Test</h1>
+            <button id="submit-early-btn" class="bg-teal-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-teal-600 transition">Submit & View Results</button>
+        </header>
+        <main class="flex flex-col md:flex-row main-content">
+            <!-- Sidebar -->
+            <aside class="w-full md:w-1/4 bg-gray-50 p-6 border-r border-gray-200 sidebar sticky top-16">
+                <h3 class="text-lg font-bold mb-4 border-b pb-2">Quiz Status</h3>
+                <div class="space-y-4 text-lg">
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold">Timer:</span>
+                        <span id="timer" class="font-mono bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full">60:00</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold">Attempted:</span>
+                        <span id="attempted-count" class="font-mono bg-blue-100 text-blue-800 px-3 py-1 rounded-full">0 / 100</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold">Correct:</span>
+                        <span id="correct-count" class="font-mono bg-green-100 text-green-800 px-3 py-1 rounded-full">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold">Wrong:</span>
+                        <span id="wrong-count" class="font-mono bg-red-100 text-red-800 px-3 py-1 rounded-full">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold">Remaining:</span>
+                        <span id="left-count" class="font-mono bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">100</span>
+                    </div>
+                </div>
+            </aside>
+            <!-- Quiz Container -->
+            <div id="quiz-container" class="w-full md:w-3/4 p-4 md:p-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 id="question-number" class="text-lg font-semibold text-indigo-600 mb-2">Question 1 of 100</h2>
+                    <p id="question-text" class="text-xl font-medium mb-6 min-h-[60px]"></p>
+                    <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Options will be dynamically inserted here -->
+                    </div>
+                    <div id="explanation-container" class="mt-6 hidden">
+                        <h4 class="font-bold text-lg text-gray-800">Explanation:</h4>
+                        <p id="explanation-text" class="text-gray-700 mt-2 p-4 bg-gray-50 rounded-lg border border-gray-200"></p>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-between">
+                    <button id="prev-btn" class="bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-400 transition disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                    <button id="next-btn" class="bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700 transition">Next</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="hidden min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 to-teal-200 p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl">
+            <h1 id="results-title" class="text-3xl md:text-4xl font-bold text-teal-700 mb-4 text-center">Quiz Completed!</h1>
+            <p id="results-summary" class="text-xl text-gray-700 mb-8 text-center"></p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Weakness Analysis Chart -->
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-4 text-center">Performance Analysis</h3>
+                    <canvas id="performance-chart"></canvas>
+                </div>
+                <!-- Incorrect Answers Explanations -->
+                <div class="bg-gray-50 p-6 rounded-lg max-h-[400px] overflow-y-auto">
+                    <h3 class="text-xl font-bold mb-4 text-center">Review Your Mistakes</h3>
+                    <div id="incorrect-explanations-container" class="space-y-4">
+                         <!-- Explanations for wrong answers will be inserted here -->
+                    </div>
+                </div>
+            </div>
+             <div class="text-center mt-8">
+                <button id="restart-quiz-btn" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-700 transition-transform transform hover:scale-105">Take Quiz Again</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50 p-4">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md mx-auto text-center">
+            <h3 id="modal-title" class="text-2xl font-bold mb-4 text-gray-800">Confirm Submission</h3>
+            <p id="modal-text" class="text-gray-700 mb-6">Are you sure?</p>
+            <div class="flex justify-center space-x-4">
+                <button id="modal-cancel-btn" class="bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-400 transition">Cancel</button>
+                <button id="modal-confirm-btn" class="bg-teal-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-600 transition">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            // Section I: Ancient & Medieval Foundations
+            { question: "According to Kautilya's *Arthashastra*, which of the following is NOT one of the sources of revenue for the state?", options: ["*Durgam* (fortified towns)", "*Khani* (mines)", "*Setu* (irrigation work)", "*Moksha* (salvation)"], answer: 3, explanation: "Kautilya's *Arthashastra* provides a detailed and pragmatic list of revenue sources for the state, including fortified towns (*durgam*), the countryside (*rashtram*), mines (*khani*), and irrigation works (*setu*), among others. *Moksha* is one of the four goals of life (*Purushartha*) mentioned in Dharmashastras like Manusmriti and is a spiritual concept, not a source of state revenue.", category: "Ancient & Medieval" },
+            { question: "Ziauddin Barani categorized laws into two types: *Shariat* and *Zawabit*. In which of the following circumstances would a Sultan apply *Zawabit*?", options: ["When interpreting the teachings of the Prophets for personal conduct.", "When dealing with matters of religious ritual and prayer.", "When formulating state laws for new situations not covered by the *Shariat*.", "When enforcing the traditional practices of the Prophet without any change."], answer: 2, explanation: "Barani defined *Shariat* as the established teachings and practices of the Prophets. He introduced the concept of *Zawabit* as state laws formulated by the Sultan to address new and changing circumstances where the *Shariat* was unable to provide clear guidance. This provided flexibility in governance.", category: "Ancient & Medieval" },
+            { question: "The *Aggannasutta* of the *Digha Nikaya* presents a theory of the origin of the state. Which of the following titles was bestowed upon the first ruler chosen by the people? (A) Maha Sammata (B) Chakravartin (C) Khattiya (D) Raja", options: ["(A), (B), and (C) only", "(A), (C), and (D) only", "(B), (C), and (D) only", "(A), (B), and (D) only"], answer: 1, explanation: "The *Aggannasutta* describes a social contract where people appoint a ruler to maintain order. They bestowed upon him three titles: 'Maha Sammata' (the people's choice), 'Khattiya' (lord of the rice field), and 'Raja' (one who gladdens people with dhamma or truth). *Chakravartin* is a different concept in Indian political thought, referring to an ideal universal ruler.", category: "Ancient & Medieval" },
+            { question: "According to Manu, which of the following is NOT considered one of the five sources of *Dharma*?", options: ["*Veda*", "*Samriti*", "*Rajagya* (order of king)", "*Zawabit* (state laws)"], answer: 3, explanation: "Manusmriti lists five sources of *Dharma*: *Veda* (revealed scriptures), *Samriti* (remembered traditions), *Sajjano ke Acharan* (behavior of gentlemen), *Anta: Karan* (one's conscience), and *Rajagya* (the order of the king). *Zawabit* is a concept from Ziauddin Barani's political thought concerning state laws formulated by Muslim kings.", category: "Ancient & Medieval" },
+            { question: "Kautilya's *Arthashastra* mentions 72 *prakritis* (elements) as part of which theory?", options: ["Saptanga Theory", "Dandaniti", "Rajamandala Theory", "Theory of Espionage"], answer: 2, explanation: "The Rajamandala (Circle of States) theory is Kautilya's detailed framework for foreign policy and inter-state relations. It comprises 12 types of kings, and their various combinations and material constituents result in a total of 72 *prakritis* or elements that a would-be conqueror (*vijigsu*) must consider.", category: "Ancient & Medieval" },
+            { question: "Which chapter of Manusmriti dwells at length on various aspects of *Rajdharma* or statecraft?", options: ["First Chapter", "Seventh Chapter", "Tenth Chapter", "Twelfth Chapter"], answer: 1, explanation: "The seventh chapter of the Manusmriti is specifically dedicated to *Rajdharma*, detailing the duties of the king, principles of governance, taxation, diplomacy, and other aspects of statecraft.", category: "Ancient & Medieval" },
+            { question: "Assertion (A): Kautilya advocated for a strong, centralized state ruled by a virtuous monarch. Reason (R): He believed that in the absence of a strong ruler and the coercive power of *danda* (punishment), a state of anarchy (*matsyanyaya*) would prevail.", options: ["Both (A) and (R) are correct and (R) is the correct explanation of (A).", "Both (A) and (R) are correct but (R) is NOT the correct explanation of (A).", "(A) is correct but (R) is not correct.", "(A) is not correct but (R) is correct."], answer: 0, explanation: "Kautilya's political philosophy is grounded in realism. He was acutely aware of the possibility of anarchy, which he termed *matsyanyaya* (where the bigger fish eat the smaller ones). To prevent this chaos, he strongly recommended a powerful state led by a capable and virtuous king who could effectively wield *danda* (the rod of punishment/justice) to maintain order. Therefore, his advocacy for a strong state (A) is directly explained by his fear of anarchy (R).", category: "Ancient & Medieval" },
+            { question: "The works of Kabir, a prominent figure of the Bhakti Movement, are compiled in which of the following collections? (A) *Adi Granth* (B) *Bijak* (C) *Fatwa-i-Jahandari* (D) *Panchvani*", options: ["(A), (B), and (C) only", "(B), (C), and (D) only", "(A), (B), and (D) only", "(A), (C), and (D) only"], answer: 2, explanation: "Kabir's teachings and verses (*dohas*) are compiled in several sacred texts and collections. The most notable among these are the *Adi Granth* (the holy book of Sikhism), the *Bijak* (considered the most sacred text by Kabir Panthis), and the *Panchvani*. *Fatwa-i-Jahandari* is a work on statecraft by the medieval political thinker Ziauddin Barani.", category: "Ancient & Medieval" },
+            { question: "Who among the following described Kautilya's *Arthashastra* as exemplifying 'radical Machiavellianism,' compared to which Machiavelli's *Prince* is 'harmless'?", options: ["Sir William Jones", "Max Weber", "J. Duncan M. Derett", "Shamasastry"], answer: 1, explanation: "The sociologist Max Weber made this powerful comparison, highlighting the stark and unsentimental realism of Kautilya's statecraft. He suggested that Kautilya's advice to the ruler was far more ruthless and pragmatic than even that of Machiavelli, making *The Prince* appear 'harmless' in comparison.", category: "Ancient & Medieval" },
+            { question: "Match List I (Elements of Saptanga Theory) with List II (Modern Analogues/Meanings). (A) Swami - (I) The Treasury, (B) Amatya - (II) The Ruler/Sovereign, (C) Kosa - (III) The Army/Coercive Power, (D) Danda - (IV) The Ministers/Bureaucracy", options: ["(A)-(II), (B)-(IV), (C)-(I), (D)-(III)", "(A)-(I), (B)-(II), (C)-(III), (D)-(IV)", "(A)-(II), (B)-(I), (C)-(IV), (D)-(III)", "(A)-(IV), (B)-(III), (C)-(II), (D)-(I)"], answer: 0, explanation: "Kautilya's Saptanga theory outlines the seven essential organs of the state. The correct matching is: *Swami* is the ruler or sovereign; *Amatya* refers to the ministers and the administrative machinery; *Kosa* is the treasury; and *Danda* is the army or the coercive power of the state.", category: "Ancient & Medieval" },
+            { question: "The *Aggannasutta* provides a powerful critique of which dominant ancient Indian social theory?", options: ["Saptanga Theory", "Rajamandala Theory", "Varna Ashrama Dharma", "Purushartha"], answer: 2, explanation: "The *Aggannasutta* directly challenges the Vedic and Brahmanical idea of a divinely ordained social order based on the four varnas (*Varna Ashrama Dharma*). It posits a social contract theory where social divisions, including kingship, arise from human needs and consent, not from divine creation, thereby rejecting the inherent hierarchy of the caste system.", category: "Ancient & Medieval" },
+            { question: "Statement I: Barani made a strict distinction between the personal life of the Sultan and his political role, advising that the *Shariat* must only be followed in the political domain. Statement II: Barani's work *Tarikh-i-Firuz Shahi* is a historical account of the Delhi Sultanate.", options: ["Both Statement I and Statement II are true.", "Both Statement I and Statement II are false.", "Statement I is true but Statement II is false.", "Statement I is false but Statement II is true."], answer: 3, explanation: "Statement I is false. While Barani did distinguish between the Sultan's personal and political life, he advised the kings to follow the *Shariat* in *both* domains, although he conceded some flexibility for the private sphere. Statement II is true. *Tarikh-i-Firuz Shahi* is Barani's major historical work chronicling the reigns of the Delhi Sultans up to Firoz Shah Tughlaq.", category: "Ancient & Medieval" },
+            // Section II: The Reformist Wave
+            { question: "Which organization was founded by Jyotiba Phule in 1873 with the primary objective of improving the conditions of the depressed classes and preventing their social and economic exploitation?", options: ["Brahmo Samaj", "Arya Mahila Samaj", "Satyashodhak Samaj", "Bahishkrit Hitkarini Sabha"], answer: 2, explanation: "Jyotiba Phule founded the Satyashodhak Samaj (Society of Truth-Seekers) in Pune in 1873. Its main goal was to liberate the Shudra and Ati-Shudra castes from exploitation and oppression by the Brahmanical system. It also encouraged social reforms like weddings without Brahman priests.", category: "Reformist Wave" },
+            { question: "Raja Ram Mohan Roy's modernist approach was uniquely characterized by his attempt to synthesize:", options: ["Militant nationalism and spiritualism.", "Western modernity and traditional Indian thought, particularly the Upanishads.", "Marxist analysis and Gandhian ethics.", "Islamic jurisprudence and Christian theology."], answer: 1, explanation: "Raja Ram Mohan Roy is considered the 'father of Modern India' precisely because he did not reject Indian tradition wholesale. Instead, he sought to reform Hinduism from within by returning to the monotheistic and philosophical roots of the Upanishads while embracing Western rationalism and modern ideas. This synthesis was the hallmark of his reformist project.", category: "Reformist Wave" },
+            { question: "Pandita Ramabai's book, *The High Caste Hindu Women*, published in 1887, primarily aimed to:", options: ["Celebrate the privileged status of upper-caste women.", "Advocate for the preservation of traditional Hindu customs.", "Shed light on the oppressive practices and difficult conditions faced by women in traditional Hindu society.", "Provide a guide for women to convert to Christianity."], answer: 2, explanation: "*The High Caste Hindu Women* was a groundbreaking and critical work in which Pandita Ramabai exposed the harsh realities of child marriage, the plight of widows, and the lack of education and autonomy for women within the upper-caste Hindu framework. It was a powerful tool for her social reform campaign.", category: "Reformist Wave" },
+            { question: "Arrange the following organizations/institutions founded by Pandita Ramabai in chronological order: (A) Arya Mahila Samaj (B) Sharada Sadan (C) Mukti Mission (D) Conversion to Christianity", options: ["(D), (A), (B), (C)", "(A), (B), (C), (D)", "(A), (D), (B), (C)", "(B), (A), (D), (C)"], answer: 2, explanation: "The correct chronological order is: (A) Arya Mahila Samaj was founded in Pune in 1882. (D) Ramabai converted to Christianity in England on September 25, 1883. (B) Sharada Sadan (Home for Learning) was opened in Mumbai in 1889. (C) Mukti Mission was founded at Kedgaon in the late 1890s.", category: "Reformist Wave" },
+            { question: "Jyotiba Phule's influential work *Gulamgiri* (Slavery) drew a powerful parallel between the condition of the lower castes in India and which other group?", options: ["The serfs of medieval Europe.", "The proletariat in industrial England.", "The indigenous peoples of the Americas.", "The black slaves in the United States."], answer: 3, explanation: "Published in 1873, *Gulamgiri* was a scathing attack on the caste system. Phule dedicated the book to the American abolitionist movement and explicitly compared the subjugation of the Shudras and Ati-Shudras by the Brahmins to the enslavement of African Americans in the United States, highlighting the shared experience of dehumanization and exploitation.", category: "Reformist Wave" },
+            { question: "Which of the following statements about Raja Ram Mohan Roy are correct? (A) He established the Atmiya Sabha in Kolkata in 1815. (B) He launched the Bengali weekly newspaper *Sambad Kaumudi*. (C) He was the first Hindu to travel across the ocean. (D) He argued that idol-worship was the foundation of true religion.", options: ["(A), (B), and (C) only", "(B), (C), and (D) only", "(A), (C), and (D) only", "(A), (B), and (D) only"], answer: 0, explanation: "Statements (A), (B), and (C) are all correct. Roy founded the Atmiya Sabha in 1815, launched the pioneering newspaper *Sambad Kaumudi* in 1821, and broke the taboo against overseas travel. Statement (D) is incorrect; Roy was a staunch monotheist and a strong critic of idol-worship.", category: "Reformist Wave" },
+            { question: "Pandita Ramabai was the first woman to be awarded which of the following titles by the faculty of the University of Calcutta in 1878? (A) Pandita (B) Saraswati (C) Lokmanya (D) Kaiser-i-Hind", options: ["(A) and (D) only", "(B) and (C) only", "(A) and (B) only", "(C) and (D) only"], answer: 2, explanation: "In recognition of her profound knowledge of Sanskrit scriptures, the University of Calcutta awarded her the titles of *Pandita* (a learned woman) and *Saraswati* (goddess of learning) in 1878. *Lokmanya* was a title for Bal Gangadhar Tilak, and *Kaiser-i-Hind* was awarded to her by the British government much later.", category: "Reformist Wave" },
+            { question: "The Satyashodhak Samaj, founded by Jyotiba Phule, encouraged which radical social practice?", options: ["The adoption of English as the primary language.", "The conducting of weddings without Brahman priests.", "The establishment of a separate political party for lower castes.", "The mandatory study of Vedic scriptures for all castes."], answer: 1, explanation: "A key objective of the Satyashodhak Samaj was to challenge the ritualistic and social dominance of the Brahmin caste by promoting and conducting marriage ceremonies without the need for a Brahman priest, directly attacking the basis of this dominance.", category: "Reformist Wave" },
+            { question: "Who is hailed as 'the father of Modern India' for his efforts to synthesize Western modernity with Indian tradition and spearhead social reform?", options: ["Swami Vivekananda", "Dadabhai Naoroji", "Jyotiba Phule", "Raja Ram Mohan Roy"], answer: 3, explanation: "Raja Ram Mohan Roy is widely regarded as 'the father of Modern India' due to his pioneering role in social and religious reform, advocating against practices like Sati, promoting modern education, and creating a new Indian identity.", category: "Reformist Wave" },
+            { question: "Which statement accurately reflects Jyotiba Phule's view on the caste system?", options: ["It was a God-given system for social harmony.", "It was alien to India, introduced by Aryans for dominance.", "He sought to reform it through inter-caste dining only.", "He believed Brahmans were superior but should be benevolent."], answer: 1, explanation: "Phule fundamentally rejected the divine origin of the caste system, arguing it was an artificial construct imposed by invading Aryans to subjugate the native population and maintain their power.", category: "Reformist Wave" },
+            { question: "Arrange the publication of the following books in chronological order: (A) *The Percepts of Jesus* (Roy) (B) *Gulamgiri* (Phule) (C) *The High Caste Hindu Women* (Ramabai) (D) *Stri Dharm Niti* (Ramabai)", options: ["(A), (D), (B), (C)", "(D), (A), (C), (B)", "(A), (B), (D), (C)", "(B), (A), (D), (C)"], answer: 2, explanation: "The correct chronological order of publication is: (A) Raja Ram Mohan Roy's *The Percepts of Jesus* (1820), (B) Jyotiba Phule's *Gulamgiri* (1873), (D) Pandita Ramabai's *Stri Dharm Niti* (1882), (C) Pandita Ramabai's *The High Caste Hindu Women* (1887).", category: "Reformist Wave" },
+            // Section III: Nationalism & Its Ideologues
+            { question: "Who famously called Bal Gangadhar Tilak 'The father of the Indian unrest'?", options: ["Mahatma Gandhi", "Lord Minto", "The British colonial authorities", "Jawaharlal Nehru"], answer: 2, explanation: "Due to his radical methods and mass mobilization, the British colonial authorities viewed Tilak as a major threat and labeled him 'The father of the Indian unrest'. Mahatma Gandhi, in contrast, called him 'The Maker of Modern India'.", category: "Nationalism" },
+            { question: "Rabindranath Tagore renounced his knighthood in 1919 as a protest against which event?", options: ["The Partition of Bengal", "The Rowlatt Act", "The Amritsar (Jallianwala Bagh) Massacre", "The start of World War I"], answer: 2, explanation: "Rabindranath Tagore surrendered his knighthood in 1919 in a powerful act of protest against the brutal massacre of unarmed civilians by British troops at Jallianwala Bagh in Amritsar.", category: "Nationalism" },
+            { question: "According to Sri Aurobindo, nationalism was primarily:", options: ["A political movement for economic ends.", "A secular concept borrowed from the West.", "A religious act and a spiritual aspiration to work for the will of God.", "A tool for achieving social equality through class struggle."], answer: 2, explanation: "Sri Aurobindo articulated a philosophy of 'Spiritual Nationalism.' He elevated the idea of the nation beyond a mere political entity, viewing it as a divine manifestation. The struggle for freedom was a religious duty for him.", category: "Nationalism" },
+            { question: "V.D. Savarkar was elected as the President of the Hindu Mahasabha and held the position for seven consecutive years starting from which year?", options: ["1923", "1930", "1937", "1942"], answer: 2, explanation: "V.D. Savarkar became the President of the Hindu Mahasabha at its 19th session in Ahmedabad in 1937 and served in this capacity for the next seven years.", category: "Nationalism" },
+            { question: "Which statements reflect Tagore's critique of Western nationalism? (A) It's based on conflict and conquest. (B) It creates a mechanical union for political/economic purposes. (C) He supported its aggressive nature. (D) He saw it as a perfect model for India.", options: ["(A) and (B) only", "(C) and (D) only", "(A), (B), and (C) only", "(B) and (D) only"], answer: 0, explanation: "Tagore was a profound critic of the aggressive, mechanical, and commercial nature of Western nationalism. He argued it fostered a machine-like state that prioritized power over human values and warned India against imitating this model.", category: "Nationalism" },
+            { question: "Dadabhai Naoroji's 'Drain of Wealth' theory argued that Britain was draining India's resources primarily through which mechanisms? (A) High taxation and salaries to British officials. (B) Unfavorable trade policies. (C) Direct shipment of gold as tribute. (D) Providing development grants to India.", options: ["(A) and (D) only", "(C) and (D) only", "(A) and (B) only", "(B) and (C) only"], answer: 2, explanation: "Naoroji identified key mechanisms including the 'home charges' (salaries, pensions of British officials) and trade policies that turned India into a supplier of cheap raw materials and a captive market for expensive British goods, transferring wealth to Britain.", category: "Nationalism" },
+            { question: "Assertion (A): V.D. Savarkar called the 1857 Revolt the 'first war of Independence.' Reason (R): He viewed the revolt not as a mere sepoy mutiny but as a widespread, organized national uprising against foreign rule.", options: ["Both (A) and (R) are correct and (R) is the correct explanation of (A).", "Both (A) and (R) are correct but (R) is NOT the correct explanation of (A).", "(A) is correct but (R) is not correct.", "(A) is not correct but (R) is correct."], answer: 0, explanation: "Savarkar's book *The Indian War of Independence: 1857* countered the British narrative of a 'sepoy mutiny' by arguing it was a conscious, national war for freedom, thereby providing a powerful historical narrative for the nationalist struggle. The reason directly explains the assertion.", category: "Nationalism" },
+            { question: "Muhammad Iqbal's concept of *Khudi* (the Self) can be best understood as:", options: ["A form of possessive individualism for material gain.", "The complete dissolution of the individual into the community.", "The development of the individual's spiritual and ethical potential to a god-like state.", "A rejection of all forms of individuality."], answer: 2, explanation: "Iqbal's *Khudi* advocates for the strengthening of the self through spiritual discipline and self-realization, aiming for the individual to reach their highest potential, which he termed 'Insan-i-Kalim' (the perfect man).", category: "Nationalism" },
+            { question: "Match List I (Thinker) with List II (Concept/Term). (A) Tagore - (I) Hindutva, (B) Aurobindo - (II) Synthetic Universalism, (C) Savarkar - (III) Geeta Rahasya, (D) Tilak - (IV) Spiritual Nationalism", options: ["(A)-(I), (B)-(III), (C)-(II), (D)-(IV)", "(A)-(II), (B)-(IV), (C)-(I), (D)-(III)", "(A)-(III), (B)-(I), (C)-(IV), (D)-(II)", "(A)-(IV), (B)-(II), (C)-(III), (D)-(I)"], answer: 1, explanation: "The correct matching is: Tagore - Synthetic Universalism; Aurobindo - Spiritual Nationalism; Savarkar - Hindutva; Tilak - Geeta Rahasya.", category: "Nationalism" },
+            { question: "Swami Vivekananda founded the Ramakrishna Mission in 1897 at which location?", options: ["Chicago, USA", "Kanyakumari", "Belur Math, near Calcutta", "Mayavati, in the Himalayas"], answer: 2, explanation: "Swami Vivekananda founded the Ramakrishna Mission on May 1, 1897, with its headquarters established at the monastery of Belur Math, near Calcutta.", category: "Nationalism" },
+            { question: "In which year did Dadabhai Naoroji first raise the demand for 'Swaraj' from the Indian National Congress platform, serving as its President?", options: ["1885", "1893", "1906", "1917"], answer: 2, explanation: "It was during his third term as President at the Calcutta Session in 1906 that Dadabhai Naoroji officially declared 'Swaraj' or self-rule as the goal of the Indian National Congress.", category: "Nationalism" },
+            { question: "Arrange the following secret societies/organizations in chronological order. (A) Anushilan Samiti (B) Abhinav Bharat (C) Mitra Mela (D) Indian Home Rule League", options: ["(C), (B), (A), (D)", "(C), (A), (B), (D)", "(A), (C), (B), (D)", "(B), (A), (C), (D)"], answer: 1, explanation: "The correct chronological order is: Mitra Mela (1900), Anushilan Samiti (1902), Abhinav Bharat (renamed from Mitra Mela in 1904), Indian Home Rule League (1914).", category: "Nationalism" },
+            { question: "Which principles are central to Vivekananda's Neo-Vedanta? (A) Oneness of God and man. (B) Selfless action (*Karma Yoga*). (C) Universal tolerance. (D) Rejection of scriptures.", options: ["(A), (B), and (D) only", "(B), (C), and (D) only", "(A), (C), and (D) only", "(A), (B), and (C) only"], answer: 3, explanation: "Vivekananda's Neo-Vedanta is built on: (A) divinity of the soul, (B) selfless service (*Karma Yoga*), and (C) universal tolerance. He sought a practical and universal interpretation of scriptures, not their rejection.", category: "Nationalism" },
+            { question: "Assertion (A): Tagore was critical of Gandhi's call to boycott Western education and burn foreign cloth. Reason (R): Tagore believed in 'Synthetic Universalism' and felt such acts fostered a negative, insular nationalism.", options: ["Both (A) and (R) are correct and (R) is the correct explanation of (A).", "Both (A) and (R) are correct but (R) is NOT the correct explanation of (A).", "(A) is correct but (R) is not correct.", "(A) is not correct but (R) is correct."], answer: 0, explanation: "Tagore's criticism of certain aspects of the Non-Cooperation movement stemmed from his philosophy of universalism. He feared that a purely rejectionist approach would harm India's intellectual growth. The reason perfectly explains the assertion.", category: "Nationalism" },
+            // Section IV: The Gandhian Universe
+            { question: "Which aspects are essential to Gandhi's *Satyagraha* as a dialogue? (A) Belief that one's truth is absolute. (B) Non-violence to dissipate alienation. (C) Truth quest is a shared exercise. (D) Satyagrahi must create a dialogical space.", options: ["(A), (B), and (C) only", "(B), (C), and (D) only", "(A), (C), and (D) only", "(A), (B), and (D) only"], answer: 1, explanation: "Satyagraha is a dialogical process based on the premise that our grasp of truth is partial (making statement A incorrect). Key aspects include non-violence, seeing the opponent as a fellow human in a shared quest, and the Satyagrahi's responsibility to maintain dialogue.", category: "Gandhian Thought" },
+            { question: "Assertion (A): For Gandhi, the means are as important as the end. Reason (R): He believed ends and means are interconnected, and impure means corrupt the end.", options: ["Both (A) and (R) are correct and (R) is the correct explanation of (A).", "Both (A) and (R) are correct but (R) is NOT the correct explanation of (A).", "(A) is correct but (R) is not correct.", "(A) is not correct but (R) is correct."], answer: 0, explanation: "This is a cornerstone of Gandhian philosophy. He rejected the maxim 'the end justifies the means.' His belief that means and ends are inseparable (like a seed and a tree) perfectly explains his assertion that means are paramount.", category: "Gandhian Thought" },
+            { question: "Gandhi's concept of an ideal state, *Ram Rajya*, was characterized by:", options: ["The rule of a hereditary monarch.", "A state with a strong military and centralized power.", "A society where there are 'equal rights to both prince and pauper.'", "The establishment of Hinduism as the state religion."], answer: 2, explanation: "Gandhi's *Ram Rajya* was an ideal state of perfect democracy and justice. He clarified it would be a 'sovereignty of the people based on pure moral authority' and would ensure perfect equality, where the rights of a prince and a pauper were identical.", category: "Gandhian Thought" },
+            { question: "The Constructive Programme, introduced by Gandhi, focused on:", options: ["Preparing for armed insurrection against the British.", "Winning elections to gain control of legislative councils.", "Nation-building at the grassroots level through social and economic self-reliance.", "Organizing international diplomatic pressure on Britain."], answer: 2, explanation: "The Constructive Programme was Gandhi's blueprint for social and economic transformation, focusing on practical, grassroots activities like promoting Khadi, Hindu-Muslim unity, and removing untouchability to build the nation from the ground up.", category: "Gandhian Thought" },
+            { question: "Arrange Gandhi's major movements in India in chronological order: (A) Non-Cooperation (B) Quit India (C) Champaran Satyagraha (D) Civil Disobedience", options: ["(C), (A), (D), (B)", "(A), (C), (D), (B)", "(C), (D), (A), (B)", "(A), (D), (C), (B)"], answer: 0, explanation: "The correct chronological sequence is: Champaran Satyagraha (1917), Non-Cooperation Movement (1920), Civil Disobedience Movement (1930), Quit India Movement (1942).", category: "Gandhian Thought" },
+            { question: "Gandhi's vision of a decentralized political system, *Gram Swaraj*, is best represented by which model?", options: ["A two-tier federal structure.", "A system of concentric, or 'oceanic,' circles.", "A parliamentary system with a strong central government.", "A presidential system with executive dominance."], answer: 1, explanation: "Gandhi used the metaphor of an 'oceanic circle' to explain his model of decentralization. Power flows from the grassroots upwards in a non-hierarchical and interdependent political structure, with the individual at the center.", category: "Gandhian Thought" },
+            { question: "The Poona Pact of 1932 was signed to resolve the disagreement between Gandhi and Ambedkar over which issue?", options: ["The demand for complete independence.", "The method of non-violent protest.", "The British grant of separate electorates for the depressed classes.", "The leadership of the Indian National Congress."], answer: 2, explanation: "Gandhi opposed the Communal Award's provision of separate electorates for the 'Depressed Classes,' fearing it would divide Hindu society. His fast unto death led to the Poona Pact, which reserved seats for them within the general Hindu electorate as a compromise.", category: "Gandhian Thought" },
+            { question: "Which book by E.M.S. Namboodiripad offers a critical analysis of Gandhi's philosophy from a Marxist perspective?", options: ["*Hind Swaraj*", "*The Story of My Experiments with Truth*", "*Mahatma and the Ism*", "*Gandhi and Gandhism*"], answer: 2, explanation: "E.M.S. Namboodiripad, a prominent communist leader, wrote *The Mahatma and the Ism*. It presents a systematic Marxist critique of Gandhian ideology, analyzing its class character and limitations from a materialist perspective.", category: "Gandhian Thought" },
+            { question: "Gandhi's first major campaign of mass Civil Disobedience, or *Satyagraha*, was organized in 1906 in which province of South Africa?", options: ["Natal", "Cape Colony", "Transvaal", "Orange Free State"], answer: 2, explanation: "In 1906, Gandhi organized his first-ever campaign of *Satyagraha* in Transvaal in response to the discriminatory 'Black Act,' which sought to register and restrict the rights of the Indian population.", category: "Gandhian Thought" },
+            { question: "Statement I: Gandhi severely criticized modern industrial civilization. Statement II: Gandhi believed that religion and politics should be kept strictly separate.", options: ["Both Statement I and Statement II are true.", "Both Statement I and Statement II are false.", "Statement I is true but Statement II is false.", "Statement I is false but Statement II is true."], answer: 2, explanation: "Statement I is true; *Hind Swaraj* is a testament to his critique of modern civilization. Statement II is false; Gandhi strongly believed that politics should be infused with religious and moral values, stating that politics divorced from religion was a 'death-trap'.", category: "Gandhian Thought" },
+            // Section V: Socialist & Radical Visions
+            { question: "M.N. Roy's philosophy of 'New Humanism' explicitly rejected which of the following? (A) Marxism (B) Gandhism (C) Parliamentary Democracy (D) Individual Freedom", options: ["(A), (B), and (C) only", "(B), (C), and (D) only", "(A), (C), and (D) only", "(A), (B), and (D) only"], answer: 0, explanation: "'New Humanism' was a critique and rejection of Marxism (for its dogmatism), Gandhism (for its religious basis), and formal Parliamentary Democracy (which he saw as inadequate). It placed the freedom of the individual at its core.", category: "Socialist & Radical" },
+            { question: "Ram Manohar Lohia's concept of a decentralized state, the 'Four-Pillar State', is known as:", options: ["Saptkranti", "Panchayati Raj", "Sarvodaya", "Chaukhamba"], answer: 3, explanation: "Lohia's model, known as the 'Chaukhamba State' or 'Four-Pillar State', envisioned power being distributed among four levels: village, district, province, and center.", category: "Socialist & Radical" },
+            { question: "Jayaprakash Narayan's call for 'Total Revolution' (*Sampurna Kranti*) in 1974 was a critique against:", options: ["The principles of the Indian Constitution.", "The parliamentary system, electoral system, and party politics which he believed led to corruption.", "The policy of Non-Alignment.", "The Bhoodan movement of Vinoba Bhave."], answer: 1, explanation: "JP's 'Total Revolution' was a call for a systemic transformation. He was deeply critical of the existing parliamentary and party-based system, which he argued had become corrupt, unresponsive, and had concentrated power.", category: "Socialist & Radical" },
+            { question: "Who said, 'Radicalism thinks in terms neither of nation nor class, its concern is man; it concerns freedom as freedom of the individual'?", options: ["Jawaharlal Nehru", "Jayaprakash Narayan", "M.N. Roy", "Ram Manohar Lohia"], answer: 2, explanation: "This quote encapsulates the core of M.N. Roy's 'Radical Humanism', which sought to move beyond collectivist ideologies of nationalism and communism to place the sovereign individual at the center.", category: "Socialist & Radical" },
+            { question: "Jawaharlal Nehru's brand of socialism was most heavily influenced by which school of thought?", options: ["Marxism-Leninism", "Fabian Socialism", "Anarcho-Syndicalism", "Utopian Socialism"], answer: 1, explanation: "Nehru was deeply influenced by Fabian Socialism, which advocates for gradual, democratic, and evolutionary progress towards a socialist society through state planning and a mixed economy, all hallmarks of his policies.", category: "Socialist & Radical" },
+            { question: "Arrange the following events in M.N. Roy's career in chronological order: (A) Expulsion from Comintern (B) Formation of Radical Democratic Party (C) Helped found Mexican Communist Party (D) Publication of *New Humanism - A Manifesto*", options: ["(C), (A), (B), (D)", "(A), (C), (B), (D)", "(C), (B), (A), (D)", "(B), (A), (D), (C)"], answer: 0, explanation: "The correct sequence: Helped found Mexican Communist Party (1919), Expulsion from Comintern (1929), Formation of Radical Democratic Party (1940), Publication of *New Humanism - A Manifesto* (1947).", category: "Socialist & Radical" },
+            { question: "Ram Manohar Lohia's PhD thesis at Berlin University was on the subject of:", options: ["The Caste System in India", "Marx, Gandhi and Socialism", "Salt and Taxation", "The Wheel of History"], answer: 2, explanation: "In 1932, Lohia earned his PhD from Berlin University. His doctoral thesis was titled 'Salt and Taxation,' with a focus on Gandhi's Salt Satyagraha.", category: "Socialist & Radical" },
+            { question: "Match List I (Thinker) with List II (Concept/Movement). (A) JP Narayan - (I) Chaukhamba State, (B) Lohia - (II) Partyless Democracy, (C) Nehru - (III) Scientific Temper, (D) M.N. Roy - (IV) India in Transition", options: ["(A)-(I), (B)-(II), (C)-(III), (D)-(IV)", "(A)-(II), (B)-(I), (C)-(IV), (D)-(III)", "(A)-(II), (B)-(I), (C)-(III), (D)-(IV)", "(A)-(IV), (B)-(III), (C)-(I), (D)-(II)"], answer: 2, explanation: "Correct matching: JP Narayan - Partyless Democracy; Lohia - Chaukhamba State; Nehru - Scientific Temper; M.N. Roy - *India in Transition*.", category: "Socialist & Radical" },
+            { question: "Assertion (A): Jayaprakash Narayan devoted himself to the Bhoodan Yajna Movement in 1954. Reason (R): He had come to believe that social transformation could be better achieved through voluntary land reform and constructive work than through state-centric party politics.", options: ["Both (A) and (R) are correct and (R) is the correct explanation of (A).", "Both (A) and (R) are correct but (R) is NOT the correct explanation of (A).", "(A) is correct but (R) is not correct.", "(A) is not correct but (R) is correct."], answer: 0, explanation: "JP's decision to join the Bhoodan movement was driven by his growing disillusionment with power politics and his embrace of the Sarvodaya philosophy, which emphasized voluntary action over state coercion. The reason directly explains his action.", category: "Socialist & Radical" },
+            { question: "Lohia's notion of 'New Socialism' included which elements? (A) Large-scale, centralized industrialization. (B) Use of small machines. (C) Cooperative labour. (D) Decentralized planning.", options: ["(A), (B), and (C) only", "(A), (C), and (D) only", "(B), (C), and (D) only", "(A), (B), and (D) only"], answer: 2, explanation: "Lohia's 'New Socialism' advocated for a structure suited to Indian conditions, which included the use of small-unit technology, cooperative labour, and decentralized planning. He was against large-scale centralized industrialization.", category: "Socialist & Radical" },
+            { question: "In his work *India in Transition*, M.N. Roy identified four major classes in India. Which was NOT one of them?", options: ["The bourgeoisie", "The petty bourgeoisie", "The peasantry", "The clerical class"], answer: 3, explanation: "Applying a Marxist framework, M.N. Roy identified four main classes in *India in Transition*: the bourgeoisie, the petty bourgeoisie, the peasantry, and the proletariat. The 'clerical class' was not one of them.", category: "Socialist & Radical" },
+            { question: "Which party did Jayaprakash Narayan, along with others, form in 1934 as a left-wing group within the Indian National Congress?", options: ["Praja Socialist Party", "Congress Socialist Party", "Samyukta Socialist Party", "Radical Democratic Party"], answer: 1, explanation: "In 1934, JP and other leaders formed the Congress Socialist Party (CSP) as a socialist caucus within the INC, aiming to push the Congress towards a more radical agenda.", category: "Socialist & Radical" },
+            { question: "Nehru's nationalism, which influenced his vision for a unified India, was based on which principles? (A) Cultural monism. (B) Cultural pluralism. (C) 'Two-nation' theory. (D) 'Synthetic Universalism' of Tagore.", options: ["(A) and (C) only", "(B) and (D) only", "(A) and (D) only", "(B) and (C) only"], answer: 1, explanation: "Nehru's vision of Indian nationalism was inclusive. He believed in cultural pluralism and the right to self-determination, and was deeply influenced by Tagore's 'Synthetic Universalism.' He was a staunch opponent of cultural monism and the 'two-nation' theory.", category: "Socialist & Radical" },
+            { question: "Arrange the publication of these books in chronological order: (A) *Why Socialism?* (JP) (B) *The Discovery of India* (Nehru) (C) *Wheel of History* (Lohia) (D) *Reason, Romanticism and Revolution* (Roy)", options: ["(A), (B), (D), (C)", "(B), (A), (C), (D)", "(A), (D), (C), (B)", "(D), C), (B), (A)"], answer: 0, explanation: "The correct chronological order of publication is: (A) *Why Socialism?* (1936), (B) *The Discovery of India* (1946), (D) *Reason, Romanticism and Revolution* (1952), (C) *Wheel of History* (1955).", category: "Socialist & Radical" },
+            // Section VI: Caste, Identity & The State
+            { question: "In which year did B.R. Ambedkar found the 'Bahishkrit Hitkarini Sabha' (Outcastes Welfare Association)?", options: ["1920", "1924", "1927", "1936"], answer: 1, explanation: "Dr. B.R. Ambedkar founded the 'Bahishkrit Hitkarini Sabha' in 1924 to promote education, socio-economic upliftment, and the overall welfare of the depressed classes.", category: "Caste & Identity" },
+            { question: "Periyar E.V. Ramasamy launched the Self-Respect Movement in 1925 with the primary aim of:", options: ["Achieving political independence from the British.", "Promoting the use of the Tamil language.", "Destroying the Hindu social order based on caste and creating a new rational society.", "Forming a coalition with the Indian National Congress."], answer: 2, explanation: "The Self-Respect Movement's fundamental goal was the complete destruction of the Brahmanical Hindu social order, which Periyar saw as inherently oppressive. He aimed to build a new society based on rationalism, equality, and self-respect.", category: "Caste & Identity" },
+            { question: "The Mahad Satyagraha of 1927, led by Dr. B.R. Ambedkar, was organized to assert the right of Dalits to:", options: ["Enter temples.", "Receive education in public schools.", "Draw water from the public Chowder Tank.", "Vote in local elections."], answer: 2, explanation: "The Mahad Satyagraha was a pivotal event where Dr. Ambedkar led thousands of Dalits to drink water from the public Chowder Tank in Mahad, a powerful symbolic act to challenge untouchability and assert civil rights.", category: "Caste & Identity" },
+            { question: "Which of the following journals were started by Periyar E.V. Ramasamy? (A) *Kudi Arasu* (B) *Young India* (C) *Revolt* (D) *Mook Nayak*", options: ["(A) and (C) only", "(B) and (D) only", "(A) and (D) only", "(B) and (C) only"], answer: 0, explanation: "Periyar started the Tamil weekly *Kudi Arasu* (Republic) in 1925 and the English journal *Revolt* in 1928. *Young India* was by Gandhi, and *Mook Nayak* was by Ambedkar.", category: "Caste & Identity" },
+            { question: "Arrange the following writings of Dr. B.R. Ambedkar in chronological order: (A) *Annihilation of Caste* (B) *Who were the Shudras?* (C) *Castes in India* (D) *The Buddha and his Dhamma*", options: ["(A), (C), (B), (D)", "(C), (B), (A), (D)", "(C), (A), (B), (D)", "(B), (A), (D), (C)"], answer: 2, explanation: "The correct chronological order is: *Castes in India* (1916), *The Annihilation of Caste* (1936), *Who were the Shudras?* (1948), *The Buddha and his Dhamma* (1957).", category: "Caste & Identity" },
+            { question: "Assertion (A): Periyar E.V. Ramasamy became an atheist after a pilgrimage to Kasi. Reason (R): At Kasi, he witnessed discriminatory practices by Brahmins, which shattered his faith in institutionalized Hinduism.", options: ["Both (A) and (R) are correct and (R) is the correct explanation of (A).", "Both (A) and (R) are correct but (R) is NOT the correct explanation of (A).", "(A) is correct but (R) is not correct.", "(A) is not correct but (R) is correct."], answer: 0, explanation: "The Kasi pilgrimage in 1904 was a transformative event. His personal experience of discrimination led to his profound disillusionment with Hinduism, which is widely cited as the catalyst for his atheism.", category: "Caste & Identity" },
+            { question: "Dr. B.R. Ambedkar was a member of which committee, also known as The Indian Franchise Committee, set up after the Second Round Table Conference?", options: ["Simon Commission", "Butler Committee", "Lothian Committee", "Sargent Commission"], answer: 2, explanation: "Dr. Ambedkar was a member of the Lothian Committee (1932), officially The Indian Franchise Committee, which was tasked with making recommendations on the electoral roadmap and franchise in India.", category: "Caste & Identity" },
+            { question: "Which political party did Periyar E.V. Ramasamy head from 1938, which was later converted into the social organization 'Dravidar Kazhagam' in 1944?", options: ["Indian National Congress", "Justice Party", "Swaraj Party", "Communist Party of India"], answer: 1, explanation: "Periyar became the head of the Justice Party in 1938. In 1944, he transformed it, moving it away from electoral politics to focus purely on social reform, and renamed it the Dravidar Kazhagam.", category: "Caste & Identity" },
+            { question: "Match List I (Ambedkar's Organizations) with List II (Year). (A) Independent Labour Party - (I) 1927, (B) Samaj Samta Sangh - (II) 1955, (C) Bhartiya Buddha Mahasabha - (III) 1924, (D) Bahishkrit Hitkarini Sabha - (IV) 1936", options: ["(A)-(I), (B)-(IV), (C)-(II), (D)-(III)", "(A)-(IV), (B)-(I), (C)-(III), (D)-(II)", "(A)-(IV), (B)-(I), (C)-(II), (D)-(III)", "(A)-(III), (B)-(II), (C)-(I), (D)-(IV)"], answer: 2, explanation: "Correct matching: Independent Labour Party (1936), Samaj Samta Sangh (1927), Bhartiya Buddha Mahasabha (1955), Bahishkrit Hitkarini Sabha (1924).", category: "Caste & Identity" },
+            { question: "Why was Dr. B.R. Ambedkar strongly opposed to the Panchayati Raj system?", options: ["He believed it would be too expensive.", "He feared it would undermine central government authority.", "He argued villages were dominated by caste prejudices that would oppress Dalits.", "He preferred direct British rule."], answer: 2, explanation: "Ambedkar famously called the Indian village 'a sink of localism, a den of ignorance...and communalism.' He believed that in a caste-ridden society, Panchayati Raj institutions would be controlled by dominant upper castes and become instruments for oppressing Dalits.", category: "Caste & Identity" },
+            { question: "Periyar believed that the only way for Dalits to escape the institutionalized oppression of Brahminical casteism was through:", options: ["Armed revolution.", "Gaining control of the Indian National Congress.", "Conversion to other religions like Islam and Christianity.", "A gradual process of social reform within Hinduism."], answer: 2, explanation: "Periyar was pessimistic about reforming Hinduism from within. He argued that for Dalits to truly achieve self-respect, the most effective path was to leave the Hindu fold entirely and convert to other religions like Islam or Christianity.", category: "Caste & Identity" },
+            // Section VII: Post-Independence Thought
+            { question: "Deendayal Upadhyaya's philosophy of 'Integral Humanism' was adopted as the official doctrine of which political party in 1965?", options: ["Indian National Congress", "Communist Party of India", "Bharatiya Jan Sangh", "Swatantra Party"], answer: 2, explanation: "'Integral Humanism' was adopted as the guiding doctrine of the Bharatiya Jan Sangh in 1965. It later became a foundational philosophy for the Bharatiya Janata Party (BJP).", category: "Post-Independence" },
+            { question: "According to Deendayal Upadhyaya, humankind's four attributes (body, mind, intellect, soul) correspond to which four universal objectives (*Purushartha*)?", options: ["*Dharma, Artha, Kama, Moksha*", "*Swaraj, Swadeshi, Sarvodaya, Satyagraha*", "*Satya, Ahimsa, Asteya, Brahmacharya*", "*Swami, Amatya, Janapada, Durga*"], answer: 0, explanation: "In Integral Humanism, Upadhyaya integrated the four *Purusharthas*. He argued that a holistic vision must cater to all four attributes: body (Kama), mind (Artha), intellect (Dharma), and soul (Moksha).", category: "Post-Independence" },
+            { question: "What is the concept of '*Chitti*' in Deendayal Upadhyaya's thought?", options: ["The individual conscience.", "A system of decentralized governance.", "The definitive 'national soul' or innate nature of a nation.", "The principle of economic democracy."], answer: 2, explanation: "Upadhyaya termed the innate character or 'soul' of the nation as '*Chitti*'. He argued that a nation is a living organism and all state policies should be in harmony with this national soul.", category: "Post-Independence" },
+            { question: "Assertion (A): Deendayal Upadhyaya rejected both Western Capitalism and Socialism. Reason (R): He argued both were materialistic and incomplete, ignoring *Dharma* and *Moksha*.", options: ["Both (A) and (R) are correct and (R) is the correct explanation of (A).", "Both (A) and (R) are correct but (R) is NOT the correct explanation of (A).", "(A) is correct but (R) is not correct.", "(A) is not correct but (R) is correct."], answer: 0, explanation: "Upadhyaya presented Integral Humanism as a 'third way'. His core critique was that both Capitalism and Socialism were materialistic, focusing on material wants (*Artha* and *Kama*) but neglecting the higher aspects of *Dharma* and *Moksha*.", category: "Post-Independence" },
+            // Section VIII: Comprehensive Review
+            { question: "Match List I (Book) with List II (Author). (A) *The Life Divine* - (I) Ambedkar, (B) *Gulamgiri* - (II) Aurobindo, (C) *Marx, Gandhi and Socialism* - (III) Phule, (D) *Annihilation of Caste* - (IV) Lohia", options: ["(A)-(II), (B)-(III), (C)-(IV), (D)-(I)", "(A)-(I), (B)-(II), (C)-(III), (D)-(IV)", "(A)-(III), (B)-(IV), (C)-(I), (D)-(II)", "(A)-(IV), (B)-(I), (C)-(II), (D)-(III)"], answer: 0, explanation: "Correct matching: *The Life Divine* - Sri Aurobindo; *Gulamgiri* - Jyotiba Phule; *Marx, Gandhi and Socialism* - Ram Manohar Lohia; *Annihilation of Caste* - B.R. Ambedkar.", category: "Comprehensive" },
+            { question: "Match List I (Concept) with List II (Proponent). (A) Saptkranti - (I) JP Narayan, (B) Total Revolution - (II) Upadhyaya, (C) Integral Humanism - (III) Periyar, (D) Self-Respect Movement - (IV) Lohia", options: ["(A)-(I), (B)-(IV), (C)-(II), (D)-(III)", "(A)-(IV), (B)-(I), (C)-(III), (D)-(II)", "(A)-(III), (B)-(II), (C)-(I), (D)-(IV)", "(A)-(IV), (B)-(I), (C)-(II), (D)-(III)"], answer: 3, explanation: "Correct matching: Saptkranti - Lohia; Total Revolution - JP Narayan; Integral Humanism - Upadhyaya; Self-Respect Movement - Periyar.", category: "Comprehensive" },
+            { question: "Arrange the following events in chronological order: (A) Founding of Ramakrishna Mission (B) Founding of Satyashodhak Samaj (C) Founding of Brahmo Sabha (D) Founding of Arya Mahila Samaj", options: ["(C), (B), (D), (A)", "(B), (C), (A), (D)", "(C), (D), (B), (A)", "(A), (B), (C), (D)"], answer: 0, explanation: "Correct order: Brahmo Sabha (1828), Satyashodhak Samaj (1873), Arya Mahila Samaj (1882), Ramakrishna Mission (1897).", category: "Comprehensive" },
+            { question: "Which pair of Thinker and their Newspaper/Journal is incorrectly matched?", options: ["Bal Gangadhar Tilak - *Kesari*", "Raja Ram Mohan Roy - *Mirat-ul-Akbar*", "B.R. Ambedkar - *Mook Nayak*", "M.K. Gandhi - *Kudi Arasu*"], answer: 3, explanation: "*Kudi Arasu* was a Tamil weekly started by Periyar E.V. Ramasamy. Gandhi started journals like *Young India* and *Harijan*. The other three pairs are correct.", category: "Comprehensive" },
+            { question: "Match List I (Book) with List II (Year). (A) *Arctic Home in Vedas* (Tilak) - (I) 1909, (B) *Hind Swaraj* (Gandhi) - (II) 1923, (C) *Essentials of Hindutva* (Savarkar) - (III) 1919, (D) *The Life Divine* (Aurobindo) - (IV) 1903", options: ["(A)-(I), (B)-(IV), (C)-(II), (D)-(III)", "(A)-(IV), (B)-(I), (C)-(III), (D)-(II)", "(A)-(IV), (B)-(I), (C)-(II), (D)-(III)", "(A)-(II), (B)-(III), (C)-(I), (D)-(IV)"], answer: 2, explanation: "Correct matching: *The Arctic Home in Vedas* (1903), *Hind Swaraj* (1909), *Essentials of Hindutva* (1923), *The Life Divine* (1919).", category: "Comprehensive" },
+            { question: "Who was known as the 'Grand Old Man of India' and was the first to propound the 'Drain of Wealth' theory?", options: ["Bal Gangadhar Tilak", "Gopal Krishna Gokhale", "Dadabhai Naoroji", "Jawaharlal Nehru"], answer: 2, explanation: "Dadabhai Naoroji was known as the 'Grand Old Man of India.' He is famous for his 'Drain of Wealth' theory, articulated in his book *Poverty and Un-British Rule in India*.", category: "Nationalism" },
+            { question: "The concept of 'Begumpura' (a city without sorrow), an ideal kingdom, is associated with which Bhakti saint?", options: ["Kabir", "Meerabai", "Guru Ravidas", "Tulsidas"], answer: 2, explanation: "The concept of 'Begumpura' is famously articulated in a poem by Guru Ravidas, a 15th-century mystic poet of the Bhakti movement.", category: "Ancient & Medieval" },
+            { question: "Statement I: M.N. Roy, in his early career, was a militant nationalist inspired by figures like V.D. Savarkar. Statement II: In his later career, M.N. Roy became the foremost proponent of 'Radical Humanism' in India.", options: ["Both Statement I and Statement II are true.", "Both Statement I and Statement II are false.", "Statement I is true but Statement II is false.", "Statement I is false but Statement II is true."], answer: 0, explanation: "Both statements are true. Roy began as a revolutionary nationalist and later, after a journey through international communism, developed his unique philosophy of 'Radical Humanism'.", category: "Socialist & Radical" },
+            { question: "Whose doctoral thesis was titled 'The Development of Metaphysics in Persia'?", options: ["M.N. Roy", "Muhammad Iqbal", "Sri Aurobindo", "B.R. Ambedkar"], answer: 1, explanation: "Muhammad Iqbal earned his doctorate from the University of Munich with a thesis titled 'The Development of Metaphysics in Persia,' published in 1908.", category: "Nationalism" },
+            { question: "The slogan 'Hindu-ise All Politics and Militarize Hinduism' was popularized by which thinker?", options: ["Deendayal Upadhyaya", "Swami Vivekananda", "V.D. Savarkar", "B.S. Moonje"], answer: 2, explanation: "In a 1941 letter, V.D. Savarkar, as president of the Hindu Mahasabha, popularized this slogan to encapsulate his strategy of making Hindus a politically conscious and martially strong community.", category: "Nationalism" },
+            { question: "Match List I (Thinker) with List II (Party/Organization). (A) Roy - (I) Justice Party, (B) Periyar - (II) Congress Socialist Party, (C) JP Narayan - (III) Hindu Mahasabha, (D) Savarkar - (IV) Radical Democratic Party", options: ["(A)-(I), (B)-(II), (C)-(III), (D)-(IV)", "(A)-(IV), (B)-(I), (C)-(II), (D)-(III)", "(A)-(II), (B)-(III), (C)-(IV), (D)-(I)", "(A)-(III), (B)-(IV), (C)-(I), (D)-(II)"], answer: 1, explanation: "Correct matching: M.N. Roy - Radical Democratic Party; Periyar - Justice Party; JP Narayan - Congress Socialist Party; Savarkar - Hindu Mahasabha.", category: "Comprehensive" },
+            { question: "Who wrote the biography of Jayaprakash Narayan titled *Jayaprakash*?", options: ["Ram Manohar Lohia", "Vinoba Bhave", "Rambriksh Benipuri", "J.P. Narayan himself"], answer: 2, explanation: "The biography of Jayaprakash Narayan, titled *Jayaprakash*, was written by his nationalist friend and noted Hindi writer, Rambriksh Benipuri.", category: "Socialist & Radical" },
+            { question: "Tagore's experimental school, founded in 1901, which later became the Visva-Bharati University, is located at:", options: ["Calcutta", "Shantiniketan", "Pondicherry", "Wardha"], answer: 1, explanation: "In 1901, Tagore founded his experimental school in the rural tranquility of Shantiniketan, West Bengal, which formally became Visva-Bharati University in 1921.", category: "Nationalism" },
+            { question: "Which statement differentiates Lohia's 'Chaukhamba' from JP's 'Partyless Democracy'?", options: ["'Chaukhamba' is economic, 'Partyless Democracy' is social.", "'Chaukhamba' is a four-pillar state structure; 'Partyless Democracy' critiques the party system for communitarian politics.", "Both concepts are identical.", "'Chaukhamba' is for strong central govt; 'Partyless Democracy' is for strong village councils."], answer: 1, explanation: "Lohia's 'Chaukhamba' is a specific structural model (village, district, province, center). JP's 'Partyless Democracy' is a broader philosophical critique of party-based democracy, proposing a communitarian alternative.", category: "Socialist & Radical" },
+            { question: "Who was Sri Aurobindo's spiritual collaborator at the Pondicherry Ashram, known as 'the Mother'?", options: ["Pandita Ramabai", "Sarojini Naidu", "Mirra Alfassa", "Annie Besant"], answer: 2, explanation: "Mirra Alfassa, a French spiritualist, was Sri Aurobindo's close collaborator. She was instrumental in organizing the Sri Aurobindo Ashram and became known as 'the Mother'.", category: "Nationalism" },
+            { question: "In which book did Ambedkar present his ideas on a federal state and offer a draft constitution for the 'United States of India'?", options: ["*Annihilation of Caste*", "*Who were the Shudras?*", "*States and Minorities*", "*Federation Versus Freedom*"], answer: 2, explanation: "In his 1947 work, *States and Minorities*, Dr. Ambedkar laid out his comprehensive constitutional vision, including his proposals on fundamental rights, minority protection, and a form of state socialism.", category: "Caste & Identity" },
+            { question: "The first Self-Respect Conference, associated with Periyar's movement, was held in 1929 at which location?", options: ["Erode", "Madras", "Chengalpattu", "Vaikom"], answer: 2, explanation: "The first provincial conference of the Self-Respect Movement was held at Chengalpattu in February 1929, passing several radical social resolutions.", category: "Caste & Identity" },
+            { question: "Which thinker was posthumously awarded the Bharat Ratna in 1999?", options: ["Ram Manohar Lohia", "Deendayal Upadhyaya", "Jayaprakash Narayan", "B.R. Ambedkar"], answer: 2, explanation: "Jayaprakash Narayan (JP) was posthumously awarded India's highest civilian honor, the Bharat Ratna, in 1999 for his immense contributions to the nation.", category: "Socialist & Radical" },
+            { question: "M.N. Roy's debate with Lenin at the Second Congress of the Comintern was on which issue?", options: ["Role of peasantry in revolution.", "Strategy for socialist revolution in colonial countries.", "Dictatorship of the proletariat.", "Soviet economic policy."], answer: 1, explanation: "The Roy-Lenin debate was on the 'Colonial Question.' Lenin advocated for alliances with bourgeois-democratic movements, while Roy argued for directly leading worker and peasant movements.", category: "Socialist & Radical" },
+            { question: "Who was the first non-European to receive the Nobel Prize for Literature (1913)?", options: ["Sri Aurobindo", "Muhammad Iqbal", "Rabindranath Tagore", "M.K. Gandhi"], answer: 2, explanation: "Rabindranath Tagore was awarded the Nobel Prize for Literature in 1913, primarily for *Gitanjali*, making him the first non-European to receive the honor.", category: "Nationalism" },
+            { question: "The Vaikom Satyagraha of 1924, where Periyar played a leading role, was fought for:", options: ["Abolition of zamindari system.", "Rights of Dalits to use roads around the Vaikom temple.", "Establishment of a separate Dravidian nation.", "Promotion of rationalism."], answer: 1, explanation: "The Vaikom Satyagraha was a major protest against untouchability, demanding the right for lower-caste individuals to use the public roads surrounding the Vaikom temple. Periyar's leadership earned him the title 'Vaikom Veerar'.", category: "Caste & Identity" },
+            { question: "Which of the following is NOT a work by Ziauddin Barani?", options: ["*Tarikh-i-Firuz Shahi*", "*Fatwa-i-Jahandari*", "*Hasratnama*", "*Akbarnama*"], answer: 3, explanation: "*Tarikh-i-Firuz Shahi*, *Fatwa-i-Jahandari*, and *Hasratnama* are works by Barani. *Akbarnama* is the official chronicle of Emperor Akbar's reign, written by Abul Fazl.", category: "Ancient & Medieval" },
+            { question: "Which thinker famously stated, 'Swaraj is my birthright and I shall have it!'?", options: ["Mahatma Gandhi", "Subhash Chandra Bose", "Bal Gangadhar Tilak", "V.D. Savarkar"], answer: 2, explanation: "This iconic slogan was given by Bal Gangadhar Tilak. It encapsulated his radical demand for self-rule and became a rallying cry for the Indian nationalist movement.", category: "Nationalism" },
+            { question: "In his plan for 'reconstruction of Indian polity,' JP Narayan envisioned a political structure based on:", options: ["A strong, centralized presidential system.", "A two-party parliamentary democracy.", "A four-tier hierarchy of village, district, state, and union councils.", "A system of functional representation based on occupations."], answer: 2, explanation: "In works like *A Plea for Reconstruction of Indian Polity*, JP outlined his vision for a decentralized, communitarian democracy with a four-tier structure of governance, building 'Swaraj from below'.", category: "Socialist & Radical" },
+        ];
+
+        // DOM Elements
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const studentNameInput = document.getElementById('student-name-input');
+        const nameError = document.getElementById('name-error');
+        const startQuizBtn = document.getElementById('start-quiz-btn');
+        const quizApp = document.getElementById('quiz-app');
+        const resultsScreen = document.getElementById('results-screen');
+        const questionTextEl = document.getElementById('question-text');
+        const questionNumberEl = document.getElementById('question-number');
+        const optionsContainer = document.getElementById('options-container');
+        const explanationContainer = document.getElementById('explanation-container');
+        const explanationTextEl = document.getElementById('explanation-text');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitEarlyBtn = document.getElementById('submit-early-btn');
+        const timerEl = document.getElementById('timer');
+        const attemptedCountEl = document.getElementById('attempted-count');
+        const correctCountEl = document.getElementById('correct-count');
+        const wrongCountEl = document.getElementById('wrong-count');
+        const leftCountEl = document.getElementById('left-count');
+        const resultsTitleEl = document.getElementById('results-title');
+        const resultsSummaryEl = document.getElementById('results-summary');
+        const incorrectExplanationsContainer = document.getElementById('incorrect-explanations-container');
+        const restartQuizBtn = document.getElementById('restart-quiz-btn');
+        const customModal = document.getElementById('custom-modal');
+        const modalText = document.getElementById('modal-text');
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        
+        let shuffledQuestions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let score = 0;
+        let wrongAnswers = 0;
+        let timerInterval;
+        let performanceChart;
+        let studentName = '';
+        let confirmCallback = null;
+
+        // --- Utility Functions ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // --- Modal Functions ---
+        function showModal(text, onConfirm) {
+            modalText.textContent = text;
+            confirmCallback = onConfirm;
+            customModal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            customModal.classList.add('hidden');
+            confirmCallback = null;
+        }
+        
+        // --- Quiz Core Functions ---
+        function startQuiz() {
+            studentName = studentNameInput.value.trim();
+            if (studentName === '') {
+                nameError.classList.remove('hidden');
+                return;
+            }
+            nameError.classList.add('hidden');
+
+            welcomeScreen.classList.add('hidden');
+            quizApp.classList.remove('hidden');
+            resultsScreen.classList.add('hidden');
+            
+            shuffledQuestions = shuffleArray([...quizData]);
+            userAnswers = new Array(shuffledQuestions.length).fill(null);
+            currentQuestionIndex = 0;
+            score = 0;
+            wrongAnswers = 0;
+
+            loadQuestion(currentQuestionIndex);
+            updateStats();
+            startTimer(3600); // 60 minutes
+        }
+
+        function loadQuestion(index) {
+            const question = shuffledQuestions[index];
+            questionNumberEl.textContent = `Question ${index + 1} of ${shuffledQuestions.length}`;
+            questionTextEl.innerHTML = question.question; 
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, i) => {
+                const button = document.createElement('button');
+                button.innerHTML = `<span>${String.fromCharCode(65 + i)}.</span> <span class="text-left flex-1">${option}</span>`;
+                button.className = 'option-btn flex items-center space-x-3 text-left w-full p-4 border-2 border-gray-300 rounded-lg hover:bg-indigo-100 hover:border-indigo-400';
+                button.onclick = () => selectOption(i);
+                optionsContainer.appendChild(button);
+            });
+            
+            if (userAnswers[index] !== null) {
+                showExplanation();
+                updateOptionStyles();
+            } else {
+                explanationContainer.classList.add('hidden');
+            }
+
+            nextBtn.textContent = (index === shuffledQuestions.length - 1) ? 'Submit' : 'Next';
+            updateNavButtons();
+        }
+
+        function selectOption(selectedIndex) {
+            if (userAnswers[currentQuestionIndex] !== null) return; 
+
+            const question = shuffledQuestions[currentQuestionIndex];
+            userAnswers[currentQuestionIndex] = selectedIndex;
+
+            if (selectedIndex === question.answer) {
+                score++;
+            } else {
+                wrongAnswers++;
+            }
+            
+            showExplanation();
+            updateOptionStyles();
+            updateStats();
+        }
+        
+        function showExplanation() {
+            const question = shuffledQuestions[currentQuestionIndex];
+            explanationTextEl.textContent = question.explanation;
+            explanationContainer.classList.remove('hidden');
+        }
+
+        function updateOptionStyles() {
+             const question = shuffledQuestions[currentQuestionIndex];
+             const options = optionsContainer.children;
+             const userAnswer = userAnswers[currentQuestionIndex];
+
+             for (let i = 0; i < options.length; i++) {
+                const button = options[i];
+                button.disabled = true; 
+                
+                if (i === question.answer) {
+                    button.classList.add('correct');
+                } else if (i === userAnswer && userAnswer !== question.answer) {
+                    button.classList.add('incorrect');
+                }
+             }
+        }
+
+        function updateStats() {
+            const attempted = userAnswers.filter(ans => ans !== null).length;
+            attemptedCountEl.textContent = `${attempted} / ${shuffledQuestions.length}`;
+            correctCountEl.textContent = score;
+            wrongCountEl.textContent = wrongAnswers;
+            leftCountEl.textContent = shuffledQuestions.length - attempted;
+        }
+        
+        function updateNavButtons() {
+            prevBtn.disabled = currentQuestionIndex === 0;
+            // The next button is never disabled, as it becomes 'Submit' on the last question.
+            nextBtn.disabled = false;
+        }
+
+        function startTimer(duration) {
+            let timer = duration, minutes, seconds;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                timerEl.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    timerEl.textContent = "00:00";
+                    endQuiz();
+                }
+            }, 1000);
+        }
+        
+        function endQuiz() {
+            clearInterval(timerInterval);
+            quizApp.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            displayResults();
+        }
+        
+        function displayResults() {
+            resultsTitleEl.textContent = `Quiz Completed, ${studentName}!`;
+            resultsSummaryEl.textContent = `You scored ${score} out of ${shuffledQuestions.length}.`;
+            
+            // Process wrong answers
+            incorrectExplanationsContainer.innerHTML = '';
+            const incorrectQuestions = [];
+            userAnswers.forEach((answer, index) => {
+                if (answer !== null && answer !== shuffledQuestions[index].answer) {
+                    incorrectQuestions.push(shuffledQuestions[index]);
+                }
+            });
+            
+            if (incorrectQuestions.length > 0) {
+                incorrectQuestions.forEach((q, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'border-l-4 border-red-500 pl-4 py-2';
+                    div.innerHTML = `<h5 class="font-semibold text-gray-800">Review Topic #${i + 1} (${q.category})</h5><p class="text-gray-600">${q.explanation}</p>`;
+                    incorrectExplanationsContainer.appendChild(div);
+                });
+            } else {
+                 incorrectExplanationsContainer.innerHTML = '<p class="text-center text-green-600 font-semibold p-4">Excellent! You made no mistakes.</p>';
+            }
+
+            // Performance Chart
+            const categoryStats = {};
+            const categories = [...new Set(quizData.map(q => q.category))];
+            categories.forEach(cat => {
+                categoryStats[cat] = { correct: 0, total: 0 };
+            });
+
+            shuffledQuestions.forEach((q, i) => {
+                if (userAnswers[i] !== null) {
+                    categoryStats[q.category].total++;
+                    if (userAnswers[i] === q.answer) {
+                        categoryStats[q.category].correct++;
+                    }
+                }
+            });
+            
+            const chartLabels = Object.keys(categoryStats);
+            const chartData = chartLabels.map(cat => {
+                const { correct, total } = categoryStats[cat];
+                return total > 0 ? (correct / total) * 100 : 0;
+            });
+
+            const ctx = document.getElementById('performance-chart').getContext('2d');
+            if(performanceChart) performanceChart.destroy();
+            performanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: '% Correct',
+                        data: chartData,
+                        backgroundColor: 'rgba(79, 70, 229, 0.7)',
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                             ticks: {
+                                callback: function(value) {
+                                    return value + "%"
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                             callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.x !== null) {
+                                        label += context.parsed.x.toFixed(0) + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Event Listeners ---
+        startQuizBtn.addEventListener('click', startQuiz);
+        studentNameInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') startQuiz();
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestionIndex === shuffledQuestions.length - 1) {
+                showModal('This will end the quiz. Are you sure you want to submit?', endQuiz);
+            } else {
+                currentQuestionIndex++;
+                loadQuestion(currentQuestionIndex);
+            }
+        });
+        
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion(currentQuestionIndex);
+            }
+        });
+
+        submitEarlyBtn.addEventListener('click', () => {
+            showModal('Are you sure you want to submit now? You will not be able to change your answers.', endQuiz);
+        });
+
+        restartQuizBtn.addEventListener('click', () => {
+             resultsScreen.classList.add('hidden');
+             welcomeScreen.classList.remove('hidden');
+        });
+        
+        modalConfirmBtn.addEventListener('click', () => {
+            if (confirmCallback) {
+                confirmCallback();
+            }
+            hideModal();
+        });
+
+        modalCancelBtn.addEventListener('click', hideModal);
+
+    </script>
+</body>
+</html>
